@@ -162,7 +162,7 @@ export default function App({ Component, pageProps }: ExtendedAppProps) {
                 <ThemeComponent key="ThemeComponent" settings={settings} userThemeOptions={baseThemeOptions}>
                   <LocalizationProvider
                     key="LocalizationProvider"
-                    dateAdapter={settings.calendar === 'jalali' ? AdapterDateFnsJalali : AdapterDateFns}
+                    dateAdapter={settings.calendar === 'jalali' ? AdapterDateFnsJalali : AdapterDateFns as any}
                   >
                     <Component key="app_Component" {...pageProps} />
                   </LocalizationProvider>
