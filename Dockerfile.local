@@ -10,8 +10,9 @@ WORKDIR /app
 # Copy everything at once
 COPY . .
 
-# Install dependencies
-RUN npm install --legacy-peer-deps --no-audit --no-fund
+# Install dependencies and missing packages
+RUN npm install --legacy-peer-deps --no-audit --no-fund && \
+    npm install stylis stylis-plugin-rtl
 
 # Build only main app (lightweight)
 RUN npx nx build main -c production && \
