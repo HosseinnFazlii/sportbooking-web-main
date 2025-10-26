@@ -11,8 +11,8 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies and missing packages
-RUN npm install  && \
-    npm install stylis stylis-plugin-rtl
+RUN npm install --legacy-peer-deps && \
+    npm install stylis stylis-plugin-rtl --legacy-peer-deps
 
 # Build only main app (lightweight)
 RUN npx nx build main -c production && \
