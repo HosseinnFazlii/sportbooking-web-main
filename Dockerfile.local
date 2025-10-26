@@ -7,14 +7,11 @@ RUN apk add --no-cache nginx
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy everything at once
+COPY . .
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
-
-# Copy source code
-COPY . .
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 # Build only main app (lightweight)
 RUN npx nx build main -c production && \
