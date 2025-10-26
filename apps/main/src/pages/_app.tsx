@@ -20,7 +20,8 @@ import {
   Settings,
   settingsConfig
 } from '@mf-core/core-ui';
-import { AdapterDateFns, AdapterDateFnsJalali } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFnsJalali } from '@mui/x-date-pickers/AdapterDateFnsJalali';
 import { baseThemeOptions } from "../layouts/theme-options";
 import { remoteApps } from '../../module-federation.remotes';
 import 'react-perfect-scrollbar/dist/css/styles.css';
