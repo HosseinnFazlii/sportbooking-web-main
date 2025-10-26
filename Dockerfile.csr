@@ -1,0 +1,19 @@
+## COMMANDS:
+# docker build --target main -t rismun/sportbooking/web-client:latest -f Dockerfile.csr .
+# docker run --network=localnet -p 80:80 --name web-client  -dit --restart unless-stopped -d rismun/sportbooking/web-client
+
+# ---- Build Stage ----
+FROM web-client-build-cache as builder
+
+# ---- Production Stage for Web Client ----
+FROM nginx:alpine as main
+
+USER root
+
+# Copy the exported files from the builder to the nginx html directory
+COPY --from=builder /home/node/dist/apps/main/exported/ /usr/share/nginx/html/
+
+# Copy the default nginx configuration file
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+CMD ["nginx", "-g", "daemon off;"]

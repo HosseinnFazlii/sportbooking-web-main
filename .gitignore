@@ -1,0 +1,73 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Nx workspace cache & build output
+/dist/
+/dist-e2e/
+/tmp/
+/.nx/cache/
+/.nx/workspace-data/
+
+# Node & TypeScript artifacts
+/node_modules/
+.pnp/
+.pnp.js
+.pnp.cjs
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+next-env.d.ts
+/.eslintcache
+
+# Next.js build targets
+/.next/
+/out/
+apps/*/.next/
+apps/*/out/
+apps/*/dist/
+apps/*/build/
+apps/*/storybook-static/
+libs/*/dist/
+
+# Logs & reports
+/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+report.html
+nx-report/
+
+# Tests & coverage
+/coverage/
+/coverage-e2e/
+/.nyc_output/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Deployment & hosting
+/.vercel/
+/build/
+
+# Certificates & secrets
+*.pem
+
+# OS & editor noise
+.DS_Store
+Thumbs.db
+/.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Temp & local tooling
+/_temp/
+/.cursor/
+/.cursor/rules/nx-rules.mdc
+/.github/instructions/nx.instructions.md

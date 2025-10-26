@@ -1,0 +1,1 @@
+export type { EmotionCache } from '@emotion/cache';
