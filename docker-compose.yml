@@ -1,38 +1,20 @@
-version: '3.8'
-
+# Simple Development/Production Deployment
 services:
-  # SportBooking Web Application
   sportbooking-web:
     build:
       context: .
       dockerfile: Dockerfile.local
-    container_name: sportbooking-web-app
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - PORT=80
-    networks:
-      - sportbooking-network
-
-  # Nginx reverse proxy
-  nginx:
-    image: nginx:alpine
-    container_name: sportbooking-nginx
-    restart: unless-stopped
+    container_name: sportbooking-web
     ports:
       - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - nginx-logs:/var/log/nginx
-    depends_on:
-      - sportbooking-web
-    networks:
-      - sportbooking-network
-
-volumes:
-  nginx-logs:
-
-networks:
-  sportbooking-network:
-    driver: bridge
+    environment:
+      - NODE_ENV=production
+      - NGINX_SERVER_NAME=courtic.ir
+      - API_BASE_URL=https://api.courtic.ir/
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
