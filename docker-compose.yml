@@ -9,9 +9,9 @@ services:
     ports:
       - "${WEB_PORT:-80}:80"
     environment:
-      - NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-localhost}
-      - NGINX_CLIENT_MAX_BODY_SIZE: ${NGINX_CLIENT_MAX_BODY_SIZE:-500M}
-      - API_BASE_URL: ${API_BASE_URL:-http://api-server:3030/}
+      - NGINX_SERVER_NAME=${NGINX_SERVER_NAME:-courtic.ir}
+      - NGINX_CLIENT_MAX_BODY_SIZE=${NGINX_CLIENT_MAX_BODY_SIZE:-500M}
+      - API_BASE_URL=${API_BASE_URL:-https://api.courtic.ir/}
     volumes:
       - ./logs:/var/log/nginx
     networks:
@@ -25,7 +25,7 @@ services:
       start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sportbooking-web.rule=Host(`${NGINX_SERVER_NAME:-localhost}`)"
+      - "traefik.http.routers.sportbooking-web.rule=Host(`${NGINX_SERVER_NAME:-courtic.ir}`)"
       - "traefik.http.services.sportbooking-web.loadbalancer.server.port=80"
 
   # Optional: Add a reverse proxy for production
