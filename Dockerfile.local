@@ -1,0 +1,64 @@
+# Simple Dockerfile for local build
+FROM ubuntu:20.04
+
+# Install Node.js and nginx
+RUN apt-get update && \
+    apt-get install -y curl nginx && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY yarn.lock ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npx nx build main -c production && \
+    npx nx build auth -c production && \
+    npx nx build sportbooking -c production && \
+    npx nx build management -c production && \
+    npx nx export main -c production && \
+    npx nx export auth -c production && \
+    npx nx export sportbooking -c production && \
+    npx nx export management -c production && \
+    mkdir -p dist/apps/main/exported/apps && \
+    cp -rf dist/apps/auth/exported dist/apps/main/exported/apps/auth && \
+    cp -rf dist/apps/sportbooking/exported dist/apps/main/exported/apps/sportbooking && \
+    cp -rf dist/apps/management/exported dist/apps/main/exported/apps/management
+
+# Copy built files to nginx
+RUN cp -r dist/apps/main/exported/* /var/www/html/
+
+# Create nginx config
+RUN echo 'server { \
+    listen 80; \
+    server_name courtic.ir; \
+    root /var/www/html; \
+    index index.html; \
+    location / { \
+        try_files $uri $uri/ /index.html; \
+    } \
+    location /api/ { \
+        proxy_pass https://api.courtic.ir/; \
+        proxy_set_header Host $host; \
+        proxy_set_header X-Real-IP $remote_addr; \
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
+        proxy_set_header X-Forwarded-Proto $scheme; \
+    } \
+}' > /etc/nginx/sites-available/default
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,54 +1,20 @@
-version: '3.8'
-
+# Simple Development/Production Deployment
 services:
   sportbooking-web:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     container_name: sportbooking-web
     ports:
-      - "${WEB_PORT:-80}:80"
+      - "80:80"
     environment:
-      - NGINX_SERVER_NAME=${NGINX_SERVER_NAME:-courtic.ir}
-      - NGINX_CLIENT_MAX_BODY_SIZE=${NGINX_CLIENT_MAX_BODY_SIZE:-500M}
-      - API_BASE_URL=${API_BASE_URL:-https://api.courtic.ir/}
-    volumes:
-      - ./logs:/var/log/nginx
-    networks:
-      - sportbooking-network
+      - NODE_ENV=production
+      - NGINX_SERVER_NAME=courtic.ir
+      - API_BASE_URL=https://api.courtic.ir/
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.sportbooking-web.rule=Host(`${NGINX_SERVER_NAME:-courtic.ir}`)"
-      - "traefik.http.services.sportbooking-web.loadbalancer.server.port=80"
-
-  # Optional: Add a reverse proxy for production
-  nginx-proxy:
-    image: nginx:alpine
-    container_name: sportbooking-nginx-proxy
-    ports:
-      - "${PROXY_PORT:-8080}:80"
-    volumes:
-      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - sportbooking-network
-    depends_on:
-      - sportbooking-web
-    restart: unless-stopped
-    profiles:
-      - proxy
-
-networks:
-  sportbooking-network:
-    driver: bridge
-    name: sportbooking-network
-
-volumes:
-  logs:
-    driver: local
