@@ -5,8 +5,6 @@ import { useEffect } from 'react';
 import { Router } from 'next/router';
 import {
   LocalizationProvider,
-  AdapterDateFns,
-  AdapterDateFnsJalali,
   ThemeComponent,
   SettingsProvider,
   SettingsConsumer,
@@ -22,6 +20,7 @@ import {
   Settings,
   settingsConfig
 } from '@mf-core/core-ui';
+import { AdapterDateFns, AdapterDateFnsJalali } from '@mui/x-date-pickers';
 import { baseThemeOptions } from "../layouts/theme-options";
 import { remoteApps } from '../../module-federation.remotes';
 import 'react-perfect-scrollbar/dist/css/styles.css';
