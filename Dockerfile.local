@@ -1,40 +1,24 @@
-# Simple Dockerfile for local build
-FROM ubuntu:20.04
+# Lightweight Dockerfile
+FROM node:18-alpine
 
-# Install Node.js and nginx
-RUN apt-get update && \
-    apt-get install -y curl nginx && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install nginx
+RUN apk add --no-cache nginx
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY yarn.lock ./
 
-# Install dependencies with legacy peer deps to resolve conflicts
+# Install dependencies
 RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Build only main app (lightweight)
 RUN npx nx build main -c production && \
-    npx nx build auth -c production && \
-    npx nx build sportbooking -c production && \
-    npx nx build management -c production && \
-    npx nx export main -c production && \
-    npx nx export auth -c production && \
-    npx nx export sportbooking -c production && \
-    npx nx export management -c production && \
-    mkdir -p dist/apps/main/exported/apps && \
-    cp -rf dist/apps/auth/exported dist/apps/main/exported/apps/auth && \
-    cp -rf dist/apps/sportbooking/exported dist/apps/main/exported/apps/sportbooking && \
-    cp -rf dist/apps/management/exported dist/apps/main/exported/apps/management
+    npx nx export main -c production
 
 # Copy built files to nginx
 RUN cp -r dist/apps/main/exported/* /var/www/html/
@@ -55,7 +39,7 @@ RUN echo 'server { \
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
         proxy_set_header X-Forwarded-Proto $scheme; \
     } \
-}' > /etc/nginx/sites-available/default
+}' > /etc/nginx/nginx.conf
 
 # Expose port
 EXPOSE 80
