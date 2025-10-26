@@ -17,7 +17,7 @@ const resolveComponent = (item: INavGroup | INavLink) => {
 }
 
 export const HorizontalNavItems: FC<IHorizontalNavItems> = (props) => {
-  const RenderMenuItems = props.horizontalNavItems?.map((item: INavGroup | INavLink, index: number) => {
+  const RenderMenuItems = props.horizontalNavItems?.map((item: any, index: number) => {
     const TagName = resolveComponent(item)
 
     return <TagName {...props} key={index} item={item} />
