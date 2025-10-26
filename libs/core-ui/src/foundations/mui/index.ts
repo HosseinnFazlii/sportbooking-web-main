@@ -151,7 +151,7 @@ export type {
 
 export {
     AdapterDateFns as AdapterDateFns
-} from '@mui/x-date-pickers/AdapterDateFnsV3';
+} from '@mui/x-date-pickers/AdapterDateFns';
 
 export {
     AdapterDateFnsJalali
