@@ -11,6 +11,7 @@ export const handleStoreSettings = (settings: Settings) => {
     delete initSettings.navHidden;
     delete initSettings.lastLayout;
     delete initSettings.toastPosition;
-    delete initSettings.dateUtils;
-    window.localStorage.setItem('settings', JSON.stringify(initSettings));
+    // Remove dateUtils property safely
+    const { dateUtils, ...settingsWithoutDateUtils } = initSettings;
+    window.localStorage.setItem('settings', JSON.stringify(settingsWithoutDateUtils));
 }
