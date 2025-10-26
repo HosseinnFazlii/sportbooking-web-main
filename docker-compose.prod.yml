@@ -1,0 +1,62 @@
+version: '3.8'
+
+# Production Docker Compose configuration
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  sportbooking-web:
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=warn
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Production nginx proxy with additional security
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: sportbooking-nginx-proxy-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-proxy-prod.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/ssl/certs:ro
+    networks:
+      - sportbooking-network
+    depends_on:
+      - sportbooking-web
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    profiles:
+      - proxy
+      - production
