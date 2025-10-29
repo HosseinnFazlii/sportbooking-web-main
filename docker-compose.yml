@@ -2,14 +2,8 @@ services:
   sportbooking-web:
     build:
       context: .
-      dockerfile: Dockerfile.local   # make sure this matches the filename you just updated
+      dockerfile: Dockerfile.local   # keep this pointing at your current Dockerfile
     container_name: sportbooking-web
     ports:
       - "80:80"
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
