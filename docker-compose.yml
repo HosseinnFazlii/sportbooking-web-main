@@ -2,7 +2,7 @@ services:
   sportbooking-web:
     build:
       context: .
-      dockerfile: Dockerfile.web
+      dockerfile: Dockerfile.local   # 👈 keep this name
     container_name: sportbooking-web
     ports:
       - "80:80"

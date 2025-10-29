@@ -3,25 +3,18 @@
 ############################
 FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy only the files needed to install and build
-# Add any other workspace-level config files your Nx monorepo needs (tsconfig.base.json, workspace.json, project.json, etc.)
 COPY package.json package-lock.json nx.json angular.json ./
 COPY apps ./apps
 COPY libs ./libs
 
-# Install deps
-# We keep the --legacy-peer-deps logic you had, plus the extra packages you pinned
 RUN npm install --legacy-peer-deps && \
     npm install stylis stylis-plugin-rtl --legacy-peer-deps && \
     npm install date-fns@^2.30.0 --legacy-peer-deps
 
-# Build the Next.js app called "main" and export it as static
 RUN npx nx build main -c production && \
     npx nx export main -c production
-# After this, Nx usually writes the exported static site to dist/apps/main/exported/
 
 
 ############################
@@ -29,27 +22,22 @@ RUN npx nx build main -c production && \
 ############################
 FROM alpine:3.19
 
-# Install nginx
 RUN apk add --no-cache nginx
 
-# Create web root + nginx runtime dirs
 RUN mkdir -p /var/www/html && mkdir -p /run/nginx
 
-# Copy the exported static build from the builder stage
 COPY --from=builder /app/dist/apps/main/exported/ /var/www/html/
 
-# Write nginx config
-# NOTE: we escape $ as \$ so the Docker build shell doesn't substitute it early.
 RUN echo "server { \
     listen 80; \
-    server_name courtic.ir; \
+    server_name _; \
     root /var/www/html; \
     index index.html; \
     location / { \
         try_files \$uri \$uri/ /index.html; \
     } \
     location /api/ { \
-        proxy_pass https://api.courtic.ir/; \
+        proxy_pass http://94.101.178.233:3030/; \
         proxy_set_header Host \$host; \
         proxy_set_header X-Real-IP \$remote_addr; \
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
@@ -57,8 +45,6 @@ RUN echo "server { \
     } \
 }" > /etc/nginx/http.d/default.conf
 
-# Expose HTTP
 EXPOSE 80
 
-# Run nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]
