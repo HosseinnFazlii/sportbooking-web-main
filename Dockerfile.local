@@ -20,27 +20,31 @@ RUN npx nx build main -c production && \
     npx nx export main -c production
 
 # Copy built files to nginx
-# (make sure the nginx web root exists first)
 RUN mkdir -p /var/www/html && \
     cp -r dist/apps/main/exported/* /var/www/html/
 
-# Create nginx config
-RUN echo 'server { \
-    listen 80; \
-    server_name _; \
-    root /var/www/html; \
-    index index.html; \
-    location / { \
-        try_files \$uri \$uri/ /index.html; \
-    } \
-    location /api/ { \
-        proxy_pass http://94.101.178.233:3030/; \
-        proxy_set_header Host \$host; \
-        proxy_set_header X-Real-IP \$remote_addr; \
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
-        proxy_set_header X-Forwarded-Proto \$scheme; \
-    } \
-}' > /etc/nginx/nginx.conf
+# Create nginx server config in the right place for Alpine nginx
+# IMPORTANT:
+# - We are now writing to /etc/nginx/http.d/default.conf, NOT /etc/nginx/nginx.conf
+# - We escape $ as \$ so Docker doesn't expand variables during build
+# - proxy_pass points to your API at http://94.101.178.233:3030
+RUN mkdir -p /etc/nginx/http.d && \
+    echo 'server { \
+        listen 80; \
+        server_name _; \
+        root /var/www/html; \
+        index index.html; \
+        location / { \
+            try_files \$uri \$uri/ /index.html; \
+        } \
+        location /api/ { \
+            proxy_pass http://94.101.178.233:3030/; \
+            proxy_set_header Host \$host; \
+            proxy_set_header X-Real-IP \$remote_addr; \
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
+            proxy_set_header X-Forwarded-Proto \$scheme; \
+        } \
+    }' > /etc/nginx/http.d/default.conf
 
 # Expose port
 EXPOSE 80
