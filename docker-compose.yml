@@ -1,9 +1,19 @@
+version: "3.9"
+
 services:
   sportbooking-web:
     build:
       context: .
-      dockerfile: Dockerfile.local   # keep this pointing at your current Dockerfile
+      dockerfile: Dockerfile.local
     container_name: sportbooking-web
+    restart: unless-stopped
     ports:
       - "80:80"
-    restart: unless-stopped
+    # persist and inspect nginx logs on the host:
+    volumes:
+      - ./nginx/logs:/var/log/nginx
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

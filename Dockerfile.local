@@ -19,17 +19,26 @@ RUN npm install --legacy-peer-deps && \
 RUN npx nx build main -c production && \
     npx nx export main -c production
 
-# Copy built files to nginx
+# Copy built files to nginx web root
 RUN mkdir -p /var/www/html && \
     cp -r dist/apps/main/exported/* /var/www/html/
 
-# Create nginx server config in the right place for Alpine nginx
-# IMPORTANT:
-# - We are now writing to /etc/nginx/http.d/default.conf, NOT /etc/nginx/nginx.conf
-# - We escape $ as \$ so Docker doesn't expand variables during build
-# - proxy_pass points to your API at http://94.101.178.233:3030
-RUN mkdir -p /etc/nginx/http.d && \
-    echo 'server { \
+# Provide a full nginx.conf instead of relying on Alpine defaults
+# We escape $ as \$ so Docker doesn't substitute bash variables while building.
+RUN echo 'user nginx; \
+worker_processes auto; \
+pcre_jit on; \
+error_log /var/log/nginx/error.log warn; \
+pid /var/run/nginx.pid; \
+events { \
+    worker_connections 1024; \
+} \
+http { \
+    include       /etc/nginx/mime.types; \
+    default_type  application/octet-stream; \
+    sendfile        on; \
+    keepalive_timeout  65; \
+    server { \
         listen 80; \
         server_name _; \
         root /var/www/html; \
@@ -44,10 +53,11 @@ RUN mkdir -p /etc/nginx/http.d && \
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
             proxy_set_header X-Forwarded-Proto \$scheme; \
         } \
-    }' > /etc/nginx/http.d/default.conf
+    } \
+}' > /etc/nginx/nginx.conf
 
-# Expose port
+# Expose port 80 from the container
 EXPOSE 80
 
-# Start nginx
+# Start nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]
